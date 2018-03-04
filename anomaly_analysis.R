@@ -12,7 +12,7 @@ simulateStrategy <- function (symbol){
   transactionMaxLength <- 90
   profitMargin <- 0.07
   anomalySpread <- 2.0
-  
+ 
   filterQuery <- sprintf('{
           "bool": {
               "must": [
@@ -83,6 +83,8 @@ simulateStrategy <- function (symbol){
   }
   
   # Set plot placeholders as 2 rows, 1 column
+  png(sprintf("plots/%s.png", symbol), width = 1920, height = 1080)
+  
   par(mfrow = c(2,1))
   graph1 <- plot(data.xts, main = sprintf("%s price and anomaly (%d) detection, total yield = %.2f%%", symbol, length(startPoints), (cash-1)*100), col = "black")
   graph1 <- lines(ema.xts, col = "blue")
@@ -91,6 +93,7 @@ simulateStrategy <- function (symbol){
   graph1 <- points(data.xts[startPoints], pch=16, col="red")
   print(graph1)
   
+  
   # TODO 1. save graph as png instead of printing
   
   # TODO 2. draw end points 
@@ -98,7 +101,7 @@ simulateStrategy <- function (symbol){
   graph2 <- plot(emaDiff, type="l", col = "blue", main= "Price spread")
   graph2 <- points(emaDiff[startPoints], pch=16, col="red")
   print(graph2)
-  
+  dev.off()
   as.numeric(cash)
 }
 
