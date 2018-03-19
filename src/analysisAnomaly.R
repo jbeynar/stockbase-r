@@ -1,10 +1,9 @@
-library("elasticsearchr")
 library("quantmod")
 library("forecast")
 library("TTR")
+source("./es_api.R")
 
 # Before start ensure variables esUrl and indexName
-
 simulateStrategy <- function (symbol){
   # TODO move this params as functions args
   emaLength <- 60
@@ -32,16 +31,9 @@ simulateStrategy <- function (symbol){
               ]
           }
       }', symbol)
+  sortQuery <- '{"date": "asc"}'
   
-  match <- query(filterQuery)
-  sort <- sort_on('{"date": "asc"}')
-  
-  data <- tryCatch({
-    elastic(esUrl, indexName, indexName) %search% (match + sort)
-  }, error = function(e){
-    print(sprintf("Skip on %s %s", symbol, e))
-    return(NA)
-  })
+  data <- queryEs(esUrl, indexName, filterQuery, sortQuery)
   
   if(is.na(data) || nrow(data) < max(c(stdDevLength, emaLength))){
     return(NA)
