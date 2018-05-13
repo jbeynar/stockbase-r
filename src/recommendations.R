@@ -38,37 +38,43 @@ queryTemplate <- '{"bool": {
   }
   ]
   }}'
-sortQuery <- '{"date": "asc"}'
+  sortQuery <- '{"date": "asc"}'
+  
+  
+  
+  #transactions <- lapply(data, function(s){
+  #  print(s)
+  #})
+  
+  
+  simulateStrategy <- function (publisher){
+    results<-data.frame(publisher=character(), symbol=character(), data=character(), diff=integer())
+    #names(results)<-c("publisher", "symbol", "data", "diff")
+    
+    df <- subset(data, publisher == publisher)
+    for(row in 1:nrow(df)) {
+      symbol <- df[row, 'symbol']
+      date <- df[row, 'date']
+      filterQuery <- sprintf(queryTemplate, symbol, date, date, period)
+      quotations <- queryEs(esUrl, quotationsIndexName, filterQuery, sortQuery)
+      if(is.na(quotations)){
+        return(NA)
+      }
+      max <- max(quotations$high, na.rm = TRUE)
+      target <- date <- df[row, 'target']
+      diff <- max - target
+      percentageDiff <- diff/target*100
+      
 
-
-
-#transactions <- lapply(data, function(s){
-#  print(s)
-#})
-
-
-simulateStrategy <- function (publisher){
-  df <- subset(data, publisher == publisher)
-  for(row in 1:nrow(df)) {
-    symbol <- df[row, 'symbol']
-    date <- df[row, 'date']
-    filterQuery <- sprintf(queryTemplate, symbol, date, date, period)
-    quotations <- queryEs(esUrl, quotationsIndexName, filterQuery, sortQuery)
-    if(is.na(quotations)){
-      return(NA)
+      #rbind(results,list(publisher, symbol, data, diff))
     }
-    max <- max(quotations$high, na.rm = TRUE)
-    target <- date <- df[row, 'target']
-    diff <- max - target
-    percentageDiff <- diff/target*100
+    #zebrac te roznice razem z publisherem, symbolem, data
+    #nastepnie dla kombinacji publisher + rok policzyc srednia, min, max, med i sum
+    results
   }
   
+  for(publisher in unique(data[1:nrow(data),'publisher'])) 
+  {
+    results <- simulateStrategy(publisher)
+  }    
   
-  
-  
-}
-
-for(publisher in unique(data[1:nrow(data),'publisher'])) 
-{
-  simulateStrategy(publisher)
-}    
