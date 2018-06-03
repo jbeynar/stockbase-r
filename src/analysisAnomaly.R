@@ -1,9 +1,13 @@
+#> setwd("~/dev/R/stockbase-r/src")
+
 library("quantmod")
 library("forecast")
 library("TTR")
-source("./es_api.R")
+source("esApi.R")
 
 # Before start ensure variables esUrl and indexName
+esUrl <- "http://localhost:9200"
+
 simulateStrategy <- function (symbol){
   # TODO move this params as functions args
   emaLength <- 60
